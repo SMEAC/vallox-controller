@@ -6,9 +6,40 @@ to the unit 2 s after the last press (`BUTTON_SETTLE_MS`).
 
 All settings (pins, modes, timer minutes, update timing, dead bands) are in `include/config.h`.
 
+## Display layout
+
+![Display layout previews: normal (HOME), attention mode (FIRE), external input, no data](layout_preview_bw.png)
+
+From left to right: normal operation, a timed attention mode (white on black), the mode started
+by the unit's own digital input (`EXTERNAL`) and the screen when the unit cannot be read.
+
 ## Wiring
+
+![Wiring concept: Vallox X102 terminal -> RS485 -> ESP32-S3-RS485-CAN -> ePaper and button](docs/wiring.svg)
+
 ePaper: VCC 3V3, GND, DIN IO11, CLK IO12, CS IO10, DC IO9, RST IO8, BUSY IO7.
 Button: IO4 to GND. Check that none of these pins is used by the RTC chip of your board.
+
+### Modbus connection to the Vallox unit
+
+| Vallox terminal X102 | ESP32-S3-RS485-CAN | Wire |
+|---|---|---|
+| `MB_A` | RS485 `A` | one wire of a twisted pair |
+| `MB_B` | RS485 `B` | the other wire of the same pair |
+| `GND`  | `GND` | common reference (recommended) |
+| `+24V` | `VIN` (optional) | only if the board is not powered over USB |
+
+`RS_A` / `RS_B` on X102 are not the Modbus bus; leave them unconnected.
+
+Cable: shielded twisted-pair cable, e.g. CAT5/CAT6 (one pair for A/B, one wire of another pair
+for GND) or LiYCY 2x2x0.5 mm². Connect the shield to GND at one end only.
+Put a 120 Ω resistor between A and B at the end of the bus (the Vallox manual shows it at the
+last unit). With a short cable at 19200 baud it usually works without one. If the unit does not
+answer, swap A and B first.
+
+The unit's Modbus settings must match `include/config.h`: address 1, 19200 baud, even parity,
+1 stop bit (set under *Expert settings -> I/O and bus settings -> Modbus settings* on the
+MyVallox panel or in the web UI).
 
 ## Update behaviour
 After a mode change / power-up the unit is read every 1 s for 20 s, then every 5 s for 5 min,
