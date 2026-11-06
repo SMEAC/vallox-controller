@@ -23,6 +23,29 @@ T withDeadband(bool oldValid, T oldValue, T newValue, T band) {
   return (d >= band) ? newValue : oldValue;
 }
 
+// A group of values could not be read. Returns true if it must now be shown as "--".
+bool noteFail(const char* group, uint8_t& fails, bool skipped) {
+  if (DEBUG_SERIAL && skipped) {
+    Serial.printf("[%lu s] %s: not read, the bus is not answering\n", millis() / 1000UL, group);
+  }
+  if (fails >= MAX_FAILS) return true;
+  ++fails;
+  if (fails < MAX_FAILS) return false;
+  if (DEBUG_SERIAL) {
+    Serial.printf("[%lu s] %s: %u failures in a row, now shown as --\n",
+                  millis() / 1000UL, group, MAX_FAILS);
+  }
+  return true;
+}
+
+// A group of values was read successfully.
+void noteOk(const char* group, uint8_t& fails) {
+  if (DEBUG_SERIAL && fails >= MAX_FAILS) {
+    Serial.printf("[%lu s] %s: readable again\n", millis() / 1000UL, group);
+  }
+  fails = 0;
+}
+
 }  // namespace
 
 void DataSource::applySensors(const RawSensors& s) {
@@ -88,12 +111,11 @@ bool DataSource::poll(MinuteClock& clock) {
 
   RawSensors sensors;
   if (vallox_.readSensors(sensors)) {
-    sensorFails_ = 0;
+    noteOk("sensors", sensorFails_);
     applySensors(sensors);
   } else {
     busDead = vallox_.busTimedOut();
-    if (sensorFails_ < MAX_FAILS) ++sensorFails_;
-    if (sensorFails_ >= MAX_FAILS) {
+    if (noteFail("sensors", sensorFails_, false)) {
       data_.outdoorValid = data_.indoorValid = data_.rhValid = data_.rpmValid = false;
       data_.outdoorT10 = data_.indoorT10 = 0;
       data_.rh = 0;
@@ -102,13 +124,13 @@ bool DataSource::poll(MinuteClock& clock) {
   }
 
   RawStatus status;
+  const bool statusSkipped = busDead;
   if (!busDead && vallox_.readStatus(status)) {
-    statusFails_ = 0;
+    noteOk("status", statusFails_);
     applyStatus(status);
   } else {
     if (!busDead) busDead = vallox_.busTimedOut();
-    if (statusFails_ < MAX_FAILS) ++statusFails_;
-    if (statusFails_ >= MAX_FAILS) {
+    if (noteFail("status", statusFails_, statusSkipped)) {
       data_.statusValid = false;
       data_.mode = Mode::Home;
       data_.unitOff = false;
@@ -120,13 +142,17 @@ bool DataSource::poll(MinuteClock& clock) {
   RawClock rawClock;
   if (!busDead && vallox_.readClock(rawClock)) {
     clockOk = applyClock(rawClock);
-    if (clockOk) clock.observe(rawClock.hour, rawClock.minute, millis());
+    if (clockOk) {
+      clock.observe(rawClock.hour, rawClock.minute, millis());
+    } else if (DEBUG_SERIAL) {
+      Serial.printf("[%lu s] clock: read returned an invalid time %u:%u\n",
+                    millis() / 1000UL, rawClock.hour, rawClock.minute);
+    }
   }
   if (clockOk) {
-    clockFails_ = 0;
+    noteOk("clock", clockFails_);
   } else {
-    if (clockFails_ < MAX_FAILS) ++clockFails_;
-    if (clockFails_ >= MAX_FAILS) {
+    if (noteFail("clock", clockFails_, busDead)) {
       data_.timeValid = data_.dateValid = false;
       data_.hour = data_.minute = data_.day = data_.month = data_.year = 0;
     }

@@ -1,6 +1,24 @@
 #include "vallox.h"
 #include "config.h"
 
+namespace {
+
+const char* modbusErrorName(uint8_t error) {
+  switch (error) {
+    case ModbusMaster::ku8MBIllegalFunction:    return "illegal function";
+    case ModbusMaster::ku8MBIllegalDataAddress: return "illegal data address";
+    case ModbusMaster::ku8MBIllegalDataValue:   return "illegal data value";
+    case ModbusMaster::ku8MBSlaveDeviceFailure: return "slave device failure";
+    case ModbusMaster::ku8MBInvalidSlaveID:     return "invalid slave ID";
+    case ModbusMaster::ku8MBInvalidFunction:    return "invalid function";
+    case ModbusMaster::ku8MBResponseTimedOut:   return "response timed out";
+    case ModbusMaster::ku8MBInvalidCRC:         return "invalid CRC";
+    default:                                    return "unknown error";
+  }
+}
+
+}  // namespace
+
 Mode decodeMode(const RawStatus& s) {
   if (s.progTimer != 0) return Mode::Programmable;
   if (s.customTimer != 0) return Mode::Fireplace;
@@ -17,6 +35,9 @@ uint8_t Vallox::read(uint16_t first, uint8_t count, uint16_t* out) {
   lastError_ = result;
   if (result == ModbusMaster::ku8MBSuccess) {
     for (uint8_t i = 0; i < count; ++i) out[i] = modbus_.getResponseBuffer(i);
+  } else if (DEBUG_SERIAL) {
+    Serial.printf("[%lu s] Modbus read of %u register(s) from %u failed: %s (0x%02X)\n",
+                  millis() / 1000UL, count, first, modbusErrorName(result), result);
   }
   return result;
 }

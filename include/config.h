@@ -13,6 +13,12 @@ constexpr int      RS485_RX_PIN     = 18;
 constexpr int      RS485_TX_PIN     = 17;
 constexpr uint32_t MODBUS_BAUD_RATE = 19200;          // serial format 8E1
 
+// ---- Debugging ---------------------------------------------------------------
+// true = also log every failed Modbus read on the USB serial port (register,
+// error), reads skipped because the bus is silent, and groups of values that
+// switch to "--" or recover. The normal messages are always printed.
+constexpr bool DEBUG_SERIAL = true;
+
 // ---- ePaper: Waveshare 2.9", 296x128, black/white (supports partial refresh) -
 // Wiring (module pin -> ESP32-S3-RS485-CAN header):
 //   VCC -> 3V3   GND -> GND   DIN -> IO11   CLK -> IO12
