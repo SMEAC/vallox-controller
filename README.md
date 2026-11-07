@@ -46,8 +46,9 @@ MyVallox panel or in the web UI).
 ## Update behaviour
 After a mode change / power-up the unit is read every 1 s for 20 s, then every 5 s for 5 min,
 then once per minute right after the minute changes. The ePaper is redrawn only if a shown
-value changed. Normal redraws are partial (~0.5 s, no flashing); a full redraw (~2 s, flashing)
+value changed. Normal redraws are partial (~1.4 s, no flashing); a full redraw (~4 s, flashing)
 is done at start-up, after a mode change, after 60 partial redraws and at least every 12 h.
+Partial redraw contrast is set by `PARTIAL_DRIVE_REPEATS` (changed pixels) and `PARTIAL_HOLD_FRAMES` (fading of unchanged pixels) in `include/config.h`.
 Attention states (Boost, Fire, External, Fault, Unit off) are shown white on black.
 
 ## Host test of the timing logic

@@ -67,12 +67,24 @@ constexpr uint32_t MEDIUM_PHASE_MS  = 300000;    // ... for 5 minutes
 
 // ---- When to redraw the ePaper ------------------------------------------------
 // A redraw happens only when something shown has changed. Normal redraws are
-// "partial" (about 0.5 s, no flashing). A full redraw (about 2 s, panel flashes,
+// "partial" (about 1.4 s, no flashing). A full redraw (about 4 s, panel flashes,
 // removes ghosting) is done at start-up, after a mode change, after
 // PARTIAL_LIMIT partial redraws in a row and at least every MAX_REFRESH_AGE_MS.
 constexpr bool     TIME_TRIGGERS_REFRESH = true;      // clock follows the minutes
 constexpr uint16_t PARTIAL_LIMIT         = 60;
 constexpr uint32_t MAX_REFRESH_AGE_MS    = 12UL * 3600UL * 1000UL;
+
+// How hard a partial redraw drives the pixels that changed: each repeat adds 10
+// frames (about 0.24 s). The GxEPD2 stock waveform is 2 (about 0.75 s, pale text).
+// Higher = darker but slower, and too high may look bolder or leave more ghosting.
+// Tune by eye; try 3 to 8.
+constexpr uint8_t  PARTIAL_DRIVE_REPEATS = 5;
+// Frames (about 24 ms each) that push every pixel toward its own colour in each
+// partial redraw, including pixels that did not change. This stops unchanged text
+// fading between full redraws. The GxEPD2 stock waveform is 1. Higher = holds
+// contrast better, but too high may leave a slight burn-in until the next full
+// redraw. Tune by eye; try 2 to 8.
+constexpr uint8_t  PARTIAL_HOLD_FRAMES   = 4;
 
 // A measurement only changes the display if it moved at least this much since
 // the value that is shown (avoids needless redraws because of 0.1 degC / 10 rpm noise).
