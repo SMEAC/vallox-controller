@@ -26,16 +26,18 @@ Button: IO4 to GND. Check that none of these pins is used by the RTC chip of you
 |---|---|---|
 | `MB_A` | RS485 `A` | one wire of a twisted pair |
 | `MB_B` | RS485 `B` | the other wire of the same pair |
-| `GND`  | `GND` | common reference (recommended) |
-| `+24V` | `VIN` (optional) | only if the board is not powered over USB |
+| `+24V`, `GND` | `VIN`, `GND` (optional) | supply, only if the board is not powered over USB |
 
 `RS_A` / `RS_B` on X102 are not the Modbus bus; leave them unconnected.
 
-Cable: shielded twisted-pair cable, e.g. CAT5/CAT6 (one pair for A/B, one wire of another pair
-for GND) or LiYCY 2x2x0.5 mm². Connect the shield to GND at one end only.
+The board's RS485 side is galvanically isolated, so its `GND` next to `VIN` is not a reference
+for A/B. The transceiver's direction is switched by the firmware on IO21 (`RS485_EN_PIN`).
+
+Cable: shielded twisted-pair cable, e.g. CAT5/CAT6 (one pair for A/B) or LiYCY 2x2x0.5 mm².
+Connect the shield to earth at one end only.
 Put a 120 Ω resistor between A and B at the end of the bus (the Vallox manual shows it at the
-last unit). With a short cable at 19200 baud it usually works without one. If the unit does not
-answer, swap A and B first.
+last unit); on the board this is the 120R jumper (H2). With a short cable at 19200 baud it
+usually works without one. If the unit does not answer, swap A and B first.
 
 The unit's Modbus settings must match `include/config.h`: address 1, 19200 baud, even parity,
 1 stop bit (set under *Expert settings -> I/O and bus settings -> Modbus settings* on the

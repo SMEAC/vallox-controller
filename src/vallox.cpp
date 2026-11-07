@@ -17,7 +17,20 @@ const char* modbusErrorName(uint8_t error) {
   }
 }
 
+// The transceiver's RE and DE pins are tied together, so the board can either
+// transmit or receive. It must only drive the bus while a request is being sent.
+void rs485Transmit() { digitalWrite(RS485_EN_PIN, HIGH); }
+void rs485Receive() { digitalWrite(RS485_EN_PIN, LOW); }
+
 }  // namespace
+
+void Vallox::begin(Stream& port, uint8_t slaveId) {
+  pinMode(RS485_EN_PIN, OUTPUT);
+  rs485Receive();
+  modbus_.begin(slaveId, port);
+  modbus_.preTransmission(rs485Transmit);
+  modbus_.postTransmission(rs485Receive);
+}
 
 Mode decodeMode(const RawStatus& s) {
   if (s.progTimer != 0) return Mode::Programmable;

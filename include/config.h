@@ -11,6 +11,7 @@
 constexpr uint8_t  MODBUS_SLAVE_ID  = 1;
 constexpr int      RS485_RX_PIN     = 18;
 constexpr int      RS485_TX_PIN     = 17;
+constexpr int      RS485_EN_PIN     = 21;             // direction: HIGH = transmit, LOW = receive
 constexpr uint32_t MODBUS_BAUD_RATE = 19200;          // serial format 8E1
 
 // ---- Debugging ---------------------------------------------------------------

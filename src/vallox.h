@@ -47,7 +47,7 @@ Mode decodeMode(const RawStatus& s);
 
 class Vallox {
  public:
-  void begin(Stream& port, uint8_t slaveId) { modbus_.begin(slaveId, port); }
+  void begin(Stream& port, uint8_t slaveId);
 
   bool readSensors(RawSensors& out);
   bool readStatus(RawStatus& out);

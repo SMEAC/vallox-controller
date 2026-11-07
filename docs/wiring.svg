@@ -21,8 +21,8 @@
   <path d="M200 140 C 225 140, 225 110, 250 110 S 275 140, 300 140 S 325 110, 350 110 S 375 140, 400 140" fill="none" stroke="#1d6fd6" stroke-width="3"/>
   <!-- optional 24 V supply -->
   <line x1="200" y1="170" x2="400" y2="170" stroke="#e07a00" stroke-width="3" stroke-dasharray="8 6"/>
-  <!-- common ground -->
-  <path d="M200 260 L 300 260 L 300 200 L 400 200" fill="none" stroke="#222" stroke-width="3"/>
+  <!-- return of the optional supply -->
+  <path d="M200 260 L 300 260 L 300 200 L 400 200" fill="none" stroke="#e07a00" stroke-width="3" stroke-dasharray="8 6"/>
 
   <text x="300" y="92" text-anchor="middle" font-weight="bold">Modbus RTU / RS485</text>
   <text x="310" y="285" text-anchor="middle" font-size="11" fill="#555">twisted pair, shielded</text>
@@ -61,6 +61,7 @@
   <!-- internal UART note -->
   <text x="426" y="250" fill="#9fb3c8" font-size="11">on board: RS485 transceiver</text>
   <text x="426" y="265" fill="#9fb3c8" font-size="11">RX = IO18, TX = IO17</text>
+  <text x="426" y="279" fill="#9fb3c8" font-size="11">direction: EN = IO21</text>
   <!-- termination -->
   <rect x="426" y="290" width="120" height="34" rx="4" fill="none" stroke="#9fb3c8" stroke-dasharray="4 3"/>
   <text x="486" y="304" text-anchor="middle" fill="#9fb3c8" font-size="11">120 Ω termination</text>
@@ -115,8 +116,7 @@
   <g font-size="12">
     <line x1="20" y1="525" x2="50" y2="525" stroke="#d62828" stroke-width="3"/><text x="58" y="529">A (MB_A)</text>
     <line x1="140" y1="525" x2="170" y2="525" stroke="#1d6fd6" stroke-width="3"/><text x="178" y="529">B (MB_B)</text>
-    <line x1="260" y1="525" x2="290" y2="525" stroke="#222" stroke-width="3"/><text x="298" y="529">GND / reference</text>
-    <line x1="420" y1="525" x2="450" y2="525" stroke="#e07a00" stroke-width="3" stroke-dasharray="8 6"/><text x="458" y="529">optional: +24 V from the unit to VIN</text>
+    <line x1="260" y1="525" x2="290" y2="525" stroke="#e07a00" stroke-width="3" stroke-dasharray="8 6"/><text x="298" y="529">optional supply: +24 V to VIN, GND to GND (power side, isolated from RS485)</text>
     <text x="20" y="560" fill="#555">ePaper wire colours follow the standard Waveshare 8-pin cable. If the unit does not answer, swap A and B.</text>
     <text x="20" y="580" fill="#555">Concept drawing, not to scale. Check board pinout / VIN range against the Waveshare documentation of your board revision.</text>
   </g>
